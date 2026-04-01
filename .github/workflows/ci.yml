@@ -1,0 +1,64 @@
+name: Chaos Agent CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  audit:
+    name: AST Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Audit main agent file
+        run: python tools/lint_agent.py chaos_agent_v2_2.py
+
+      - name: Audit tools
+        run: |
+          python tools/lint_agent.py tools/lint_agent.py
+          python tools/lint_agent.py tools/policy_loader.py
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install httpx
+
+      - name: Run tests
+        run: python tests/test_agent.py
+
+  bundle-verify:
+    name: Bundle Integrity
+    runs-on: ubuntu-latest
+    needs: [audit, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install httpx
+
+      - name: Verify bundle can be created and verified
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python tests/test_bundle.py
