@@ -1,4 +1,4 @@
-    name: Chaos Agent CI
+name: Chaos Agent CI
 
 on:
   push:
@@ -63,9 +63,8 @@ jobs:
       - name: Install dependencies
         run: pip install httpx
 
-      - name: Verify bundle can be created and verified
+      - name: Verify bundle
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PYTHONPATH: .
+          # Klíč jsme odstranili, test musí být napsán tak, aby ho nevyžadoval reálně
         run: python tests/test_bundle.py
-    
