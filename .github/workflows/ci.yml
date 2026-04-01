@@ -62,3 +62,4 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python tests/test_bundle.py
+
