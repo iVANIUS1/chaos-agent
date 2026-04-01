@@ -1,0 +1,18 @@
+# --- ARCHITECT'S PRIVACY (Kritické) ---
+.env
+secrets.json
+*.pem
+policy.json.local
+
+# --- AGENT RUNTIME (Smetí z exekuce) ---
+artifact.json
+history.jsonl
+*.zip
+*.tmp
+__pycache__/
+
+# --- PROJECT NOISE ---
+venv/
+.venv/
+.DS_Store
+*.log
