@@ -1,4 +1,4 @@
-name: Chaos Agent CI
+    name: Chaos Agent CI
 
 on:
   push:
@@ -18,11 +18,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Audit main agent file
-        run: python tools/lint_agent.py chaos_agent_v2_2.py
+      - name: Install dependencies
+        run: pip install httpx
 
-      - name: Audit tools
+      - name: Audit files
+        env:
+          PYTHONPATH: .
         run: |
+          python tools/lint_agent.py chaos_agent_v2_2.py
           python tools/lint_agent.py tools/lint_agent.py
           python tools/lint_agent.py tools/policy_loader.py
 
@@ -41,6 +44,8 @@ jobs:
         run: pip install httpx
 
       - name: Run tests
+        env:
+          PYTHONPATH: .
         run: python tests/test_agent.py
 
   bundle-verify:
@@ -61,5 +66,6 @@ jobs:
       - name: Verify bundle can be created and verified
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PYTHONPATH: .
         run: python tests/test_bundle.py
-
+    
