@@ -24,12 +24,12 @@ jobs:
       - name: Audit files
         env:
           PYTHONPATH: .
-          # Tady je ten trik - musí to začínat sk-ant-
           ANTHROPIC_API_KEY: "sk-ant-fake-key-for-ci-audit-only-12345"
         run: |
-          python tools/lint_agent.py chaos_agent_v2_2.py
-          python tools/lint_agent.py tools/lint_agent.py
-          python tools/lint_agent.py tools/policy_loader.py
+          # Přidali jsme --no-shell, aby linter neblokoval subprocess.run
+          python tools/lint_agent.py chaos_agent_v2_2.py --no-shell
+          python tools/lint_agent.py tools/lint_agent.py --no-shell
+          python tools/lint_agent.py tools/policy_loader.py --no-shell
 
   test:
     name: Unit Tests
