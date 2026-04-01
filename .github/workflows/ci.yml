@@ -24,7 +24,8 @@ jobs:
       - name: Audit files
         env:
           PYTHONPATH: .
-          ANTHROPIC_API_KEY: "sk-fake-key-for-ci-audit-only"
+          # Tady je ten trik - musí to začínat sk-ant-
+          ANTHROPIC_API_KEY: "sk-ant-fake-key-for-ci-audit-only-12345"
         run: |
           python tools/lint_agent.py chaos_agent_v2_2.py
           python tools/lint_agent.py tools/lint_agent.py
@@ -47,7 +48,7 @@ jobs:
       - name: Run tests
         env:
           PYTHONPATH: .
-          ANTHROPIC_API_KEY: "sk-fake-key-for-ci-test-only"
+          ANTHROPIC_API_KEY: "sk-ant-fake-key-for-ci-test-only-12345"
         run: python tests/test_agent.py
 
   bundle-verify:
@@ -68,5 +69,5 @@ jobs:
       - name: Verify bundle
         env:
           PYTHONPATH: .
-          ANTHROPIC_API_KEY: "sk-fake-key-for-ci-bundle-only"
+          ANTHROPIC_API_KEY: "sk-ant-fake-key-for-ci-bundle-only-12345"
         run: python tests/test_bundle.py
