@@ -1,0 +1,525 @@
+%% ============================================================
+%% Chaos Agent v2.2 — Technical Documentation
+%% Author: Ivan Putna (Architect of Chaos — AoCH)
+%% Compiler: XeLaTeX (Overleaf default)
+%% ============================================================
+
+\documentclass[11pt, a4paper]{article}
+
+%% ── Fonts & encoding ────────────────────────────────────────
+\usepackage{fontspec}
+\setmainfont{EB Garamond}
+\setsansfont{Fira Sans}[BoldFont = Fira Sans SemiBold]
+\setmonofont{Fira Code}[Scale = 0.88]
+
+%% ── Page geometry ───────────────────────────────────────────
+\usepackage[
+  a4paper,
+  top=28mm, bottom=28mm,
+  left=32mm, right=26mm,
+  marginparwidth=18mm
+]{geometry}
+
+%% ── Colours ─────────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{accent}{HTML}{1A1A2E}
+\definecolor{rule}{HTML}{C8A96E}
+\definecolor{codeframe}{HTML}{EDEDED}
+\definecolor{linkcolor}{HTML}{2E4057}
+\definecolor{note}{HTML}{6B6B6B}
+\definecolor{added}{HTML}{2D6A4F}
+\definecolor{changed}{HTML}{7B5EA7}
+
+%% ── Hyperlinks ──────────────────────────────────────────────
+\usepackage[colorlinks=true, linkcolor=linkcolor, urlcolor=linkcolor, citecolor=linkcolor]{hyperref}
+
+%% ── Typography ──────────────────────────────────────────────
+\usepackage{microtype}
+\usepackage{setspace}
+\setstretch{1.22}
+\usepackage{parskip}
+\setlength{\parskip}{6pt}
+
+%% ── Section styling ─────────────────────────────────────────
+\usepackage{titlesec}
+\titleformat{\section}
+  {\sffamily\large\bfseries\color{accent}}{}{0em}{}
+  [\vspace{1pt}{\color{rule}\rule{\linewidth}{0.6pt}}]
+\titleformat{\subsection}
+  {\sffamily\normalsize\bfseries\color{accent}}{}{0em}{}
+\titlespacing{\section}{0pt}{18pt}{6pt}
+\titlespacing{\subsection}{0pt}{12pt}{4pt}
+
+%% ── Table of contents ───────────────────────────────────────
+\usepackage{tocloft}
+\renewcommand{\cftsecfont}{\sffamily\small}
+\renewcommand{\cftsecpagefont}{\sffamily\small\color{note}}
+\renewcommand{\cftdotsep}{4}
+\setlength{\cftbeforesecskip}{3pt}
+
+%% ── Code listings ───────────────────────────────────────────
+\usepackage{listings}
+\lstdefinestyle{chaos}{
+  language=Python,
+  backgroundcolor=\color{codeframe},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\bfseries\color{accent},
+  commentstyle=\itshape\color{note},
+  stringstyle=\color{linkcolor},
+  numberstyle=\tiny\color{note},
+  numbers=left, numbersep=8pt,
+  frame=none, framesep=6pt,
+  xleftmargin=14pt,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=4, captionpos=b,
+  aboveskip=10pt, belowskip=6pt,
+}
+\lstset{style=chaos}
+
+%% ── Tables ──────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\renewcommand{\arraystretch}{1.3}
+
+%% ── Margin notes ────────────────────────────────────────────
+\usepackage{marginnote}
+\renewcommand{\marginfont}{\footnotesize\itshape\color{note}}
+
+%% ── Utilities ───────────────────────────────────────────────
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*, itemsep=2pt, topsep=4pt}
+\setlist[enumerate]{leftmargin=*, itemsep=2pt, topsep=4pt}
+\usepackage{graphicx}
+
+%% ── Header / footer ─────────────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\footnotesize\color{note} Chaos Agent v2.2}
+\fancyhead[R]{\sffamily\footnotesize\color{note} Ivan Putna — AoCH}
+\fancyfoot[C]{\sffamily\footnotesize\color{note} \thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+%% ============================================================
+\begin{document}
+\thispagestyle{empty}
+
+%% ── Title block ─────────────────────────────────────────────
+\vspace*{18mm}
+{\color{rule}\rule{\linewidth}{1.2pt}}
+\vspace{6pt}
+
+{\sffamily\Huge\bfseries\color{accent} Chaos Agent v2.2}
+
+\vspace{4pt}
+{\sffamily\large\color{note} Technical Architecture, Design Rationale \& Changelog}
+
+\vspace{6pt}
+{\color{rule}\rule{\linewidth}{0.4pt}}
+\vspace{10mm}
+
+\begin{tabular}{@{}ll}
+  {\sffamily\small\color{note} Author}    & Ivan Putna \\
+  {\sffamily\small\color{note} Pseudonym} & Architect of Chaos (AoCH) \\
+  {\sffamily\small\color{note} Version}   & 2.2 \\
+  {\sffamily\small\color{note} v2.0 date} & 2026-03-31 \\
+  {\sffamily\small\color{note} v2.1 date} & 2026-04-01 \\
+  {\sffamily\small\color{note} v2.2 date} & 2026-04-01 \\
+  {\sffamily\small\color{note} License}   & MIT \\
+  {\sffamily\small\color{note} GitHub}    &
+    \href{https://github.com/iVANIUS1}{github.com/iVANIUS1} \\
+  {\sffamily\small\color{note} LinkedIn}  &
+    \href{https://www.linkedin.com/in/ivan-putna-3313a3381}{linkedin.com/in/ivan-putna-3313a3381} \\
+\end{tabular}
+
+\vspace{14mm}
+\tableofcontents
+\newpage
+
+%% ============================================================
+\section{Philosophy}
+
+\begin{quote}
+  \itshape Less code. More intelligence.
+\end{quote}
+
+Chaos Agent is a minimal, production-ready AI coding agent built around a single
+conviction: complexity is not robustness. The architecture demonstrates that a
+system with one source of truth, an explicit cognitive layer, and graceful
+degradation can be more reliable than a heavily layered alternative — while
+remaining dramatically easier to reason about.
+
+Each version is documented with the rationale behind every decision. This is not
+a framework. It is a reference architecture — designed to be read, understood,
+and adapted.
+
+%% ============================================================
+\section{Architecture Overview}
+
+\begin{center}
+\begin{tabular}{@{} >{\sffamily\bfseries}l p{9.5cm} @{}}
+  \toprule
+  Component        & Responsibility \\
+  \midrule
+  ChaosKernel      & Single source of truth. Owns \texttt{emit()}, \texttt{TokenBudget},
+                     compression, and checkpointing. \\
+  GuardianAgent    & Centralised policy enforcement via \texttt{GuardianPolicy} and
+                     \texttt{audit\_code()}. \\
+  ResearcherAgent  & Technical research phase before any implementation. \\
+  EngineerAgent    & Code generation, informed by research output. \\
+  BaseAgent        & Zero-boilerplate shared \texttt{emit()} API for all agents. \\
+  \texttt{audit\_code()}   & Standalone single-pass AST safety auditor. \\
+  \texttt{export\_bundle()} & SHA-256 reproducibility bundle (ZIP + manifest). \\
+  \texttt{verify\_bundle()} & Integrity verification against manifest. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Event data flow}
+
+\begin{enumerate}
+  \item An agent or human caller invokes \texttt{kernel.emit(event)}.
+  \item The kernel enforces the rate limit, then stamps metadata
+        (id, timestamp, depth, active signals).
+  \item The event is appended to \texttt{kernel.history} — the canonical log.
+  \item The output handler is called (built-in filter or custom callback).
+  \item If depth \emph{or} token budget pressure exceeds threshold, compression fires.
+  \item Every $N$ events, a checkpoint is written atomically to disk.
+\end{enumerate}
+
+There are no side channels. There is no other way for state to enter the system.
+
+%% ============================================================
+\section{Core Design Decisions — v2.0}
+
+\subsection{Single \texttt{emit()} gating point}
+
+All events, logs, and state mutations flow through one function. Debugging
+requires tracing one call site. Side effects are explicit.
+
+\begin{lstlisting}[caption={All events enter through a single function}]
+async def emit(self, event: Dict[str, Any]) -> None:
+    # rate limit, stamp metadata, append to history,
+    # call output handler, trigger compression if needed
+    ...
+\end{lstlisting}
+
+\marginnote{Single responsibility applied at the system level, not just the class level.}
+
+Every run produces a complete \texttt{Artifact} — a serialisable snapshot of
+every event that occurred, including signals, depth, and token count.
+
+\subsection{Explicit cognitive signals}
+
+Purely reactive agents have no mechanism for intent injection at runtime.
+Chaos Agent treats cognitive signals as first-class events:
+
+\begin{lstlisting}[caption={Signals shape reasoning before execution begins}]
+await kernel.inject("DOUBT",
+    "Direct recursion without memoization will explode on large n.")
+await kernel.inject("DIRECTION",
+    "Prioritise clarity, safety, and minimalism.")
+\end{lstlisting}
+
+Signals accumulate in \texttt{kernel.signals} and are included in every
+subsequent event's metadata. They provide active context without polluting the
+main message history.
+
+\subsection{Graceful anti-entropy}
+
+Hard depth limits abort long-running tasks at the worst possible moment.
+Chaos Agent detects cognitive overload and responds with compression.
+
+\begin{lstlisting}[caption={Depth resets gracefully — no exception raised}]
+async def compress(self) -> None:
+    # Summarise recent history via LLM call
+    # Replace tail of history with summary
+    # Reset depth: max(3, depth - 5)
+    # Net per cycle: -5 + 2 internal emits = -3 (stable)
+    ...
+\end{lstlisting}
+
+The \texttt{self.compressed} flag prevents re-entrant compression during the
+compression call itself.
+
+\subsection{Declarative \texttt{GuardianPolicy}}
+
+\begin{lstlisting}[caption={Policy is data — swap without touching agent logic}]
+@dataclass
+class GuardianPolicy:
+    allowed_commands: List[str]
+    allowed_paths: List[str]
+    max_file_size_mb: int = 10
+    no_shell: bool = True
+    forbid_risky_imports: bool = False
+\end{lstlisting}
+
+Every action passes through \texttt{GuardianAgent.check()} before execution.
+
+\subsection{Pluggable output strategy}
+
+\begin{lstlisting}[caption={Two strategies coexist — caller chooses}]
+# Built-in attention filter (default)
+kernel = ChaosKernel()
+
+# Full control via custom async handler
+kernel = ChaosKernel(on_event=my_async_handler)
+\end{lstlisting}
+
+\texttt{\_should\_show\_to\_user()} is a method on the kernel — overridable or
+replaceable entirely by supplying \texttt{on\_event}. This mirrors Python's
+\texttt{logging} design: sensible defaults, no ceiling on customisation.
+
+%% ============================================================
+\section{v2.1 Additions}
+
+\subsection{AST-level safety audit}
+
+\marginnote{\color{changed} Changed from v2.0}
+
+String-matching (v2.0) can be bypassed via concatenation or aliasing.
+\texttt{audit\_code()} runs a single-pass AST visitor that resolves import aliases
+and detects obfuscation:
+
+\begin{lstlisting}[caption={Detects what string-matching cannot}]
+# Blocked: exec/eval/compile
+exec("rm -rf /")
+
+# Blocked: aliased dangerous attribute
+import os as o; o.system("ls")
+
+# Blocked: string obfuscation
+m = 'o' + 's'    # combined == "os" -> hard violation
+
+# Blocked: shell=True (when no_shell=True)
+subprocess.run(["ls"], shell=True)
+
+# Allowed: benign attribute
+x = getattr(obj, "join")
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Public API for the auditor}]
+allowed, findings, meta = audit_code(
+    source,
+    no_shell=True,             # block shell=True at AST level
+    forbid_risky_imports=False # default off: import os is allowed,
+                               # calling os.system is not
+)
+\end{lstlisting}
+
+\subsection{EMA-based \texttt{TokenBudget}}
+
+\marginnote{\color{added} New in v2.1}
+
+Depth-only compression triggers fire on isolated spikes. \texttt{TokenBudget}
+tracks token usage with an exponential moving average (EMA, $\alpha = 0.35$)
+and fires compression only on sustained pressure:
+
+\[
+\text{EMA}_t = \alpha \cdot u_t + (1 - \alpha) \cdot \text{EMA}_{t-1}
+\]
+
+\texttt{burst\_streak} increments when $u_t > 1.5 \times \text{EMA}_{t-1}$.
+Compression triggers when \texttt{burst\_streak} $\geq 3$, or when the projected
+total exceeds $\texttt{max\_tokens} \times (1 - \texttt{safety\_margin})$.
+
+\subsection{Atomic checkpoints}
+
+\marginnote{\color{added} New in v2.1}
+
+\begin{lstlisting}[caption={Atomic write — safe on crash}]
+def _atomic_write(path: str, data: bytes) -> None:
+    fd, tmp = tempfile.mkstemp(dir=directory, suffix=".tmp")
+    with os.fdopen(fd, "wb") as fh:
+        fh.write(data)
+        fh.flush()
+        os.fsync(fh.fileno())   # flush to physical storage
+    os.replace(tmp, path)       # atomic on POSIX
+\end{lstlisting}
+
+The checkpoint file is always a valid JSON document, even if the process is
+killed mid-write.
+
+\subsection{Reproducibility bundle}
+
+\marginnote{\color{added} New in v2.1}
+
+\begin{lstlisting}[caption={Export and verify a run bundle}]
+bundle_path = export_bundle(kernel, artifact)
+# → /tmp/chaos_bundle/repro_YYYYMMDD_HHMMSS.zip
+# Contains: artifact.json, history.jsonl, manifest.json (SHA-256)
+
+ok, info = verify_bundle(bundle_path)
+# → (True, {"ok": True, "errors": []})
+\end{lstlisting}
+
+A run that cannot be reproduced is not production-ready. -AoCH
+
+%% ============================================================
+\section{Comparison with Typical Agent Architectures}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{} l X X @{}}
+  \toprule
+  \sffamily\bfseries Concern
+    & \sffamily\bfseries Typical approach
+    & \sffamily\bfseries Chaos Agent \\
+  \midrule
+  Event routing    & Scattered across components       & Single \texttt{emit()} \\
+  Safety checks    & Duplicated per agent              & Central policy + AST audit \\
+  Depth management & Hard limit / exception            & Graceful compression \\
+  Token management & Unmonitored or hard cut           & EMA \texttt{TokenBudget} \\
+  Cognitive layer  & Purely reactive                   & Explicit signal injection \\
+  Output control   & Hard-coded logging                & Pluggable async callback \\
+  Reproducibility  & Partial                           & Full Artifact + verified bundle \\
+  Context size     & Unfiltered                        & \texttt{prepare\_context()} selector \\
+  \bottomrule
+\end{tabularx}
+\end{center}
+
+%% ============================================================
+\section{v2.2 Additions}
+
+\subsection{Two-layer sandbox}
+
+\marginnote{\color{added} New in v2.2}
+
+\begin{description}[style=nextline, leftmargin=0pt]
+  \item[Layer 1 — subprocess (always active)]
+    Clean environment (\texttt{env\_whitelist}), wall-clock \texttt{timeout},
+    \texttt{RLIMIT\_CPU} and \texttt{RLIMIT\_NPROC} via \texttt{preexec\_fn}.
+    Platform-portable, no root required.
+  \item[Layer 2 — seccomp-bpf (optional)]
+    Syscall allowlist applied in \texttt{preexec\_fn} if \texttt{libseccomp}
+    is available and \texttt{policy.use\_seccomp=True}.
+    Silently skipped on macOS and containers without the library —
+    Layer 1 remains active regardless.
+\end{description}
+
+\begin{lstlisting}[caption={Sandbox entry point — one call, full pipeline}]
+result = await guardian.run_code(code)
+# 1. AST audit
+# 2. symlink pre-check
+# 3. subprocess + resource limits + optional seccomp
+# 4. symlink post-check
+\end{lstlisting}
+
+\subsection{Symlink escape detection}
+
+\marginnote{\color{added} New in v2.2}
+
+Before and after execution, \texttt{\_check\_symlinks()} walks the working
+directory and resolves every symlink via \texttt{os.path.realpath}. Any target
+outside \texttt{allowed\_paths} aborts or invalidates the run.
+
+\subsection{Extended AST audit coverage}
+
+\marginnote{\color{changed} Extended in v2.2}
+
+The audit visitor now catches additional bypass vectors:
+
+\begin{lstlisting}[caption={New blocked patterns in v2.2}]
+__import__("os")                   # direct dunder import call
+ctypes.CDLL("libc.so")            # native library loading
+os.execv("/bin/sh", [...])         # process replacement
+obj.__builtins__                   # dunder dict access
+obj.__globals__["exec"]("...")     # globals bypass
+'__im' + 'port__'                  # concat obfuscation
+\end{lstlisting}
+
+\subsection{\texttt{forbid\_risky\_imports} — intentional design}
+
+\marginnote{\color{changed} Documented in v2.2}
+
+\texttt{forbid\_risky\_imports} is \textbf{off by default}. This is a deliberate
+architectural choice, not an oversight:
+
+\begin{quote}
+  \itshape We block dangerous calls, not imports.
+  \texttt{import os} is legitimate in countless programmes.
+  \texttt{os.system(\ldots)} is not. Blocking the import would break
+  legitimate utilities without meaningfully improving security
+  — the call is what causes harm. — AoCH
+\end{quote}
+
+The rationale is documented in the module docstring, \texttt{policy.json},
+the README, and here. Enable \texttt{forbid\_risky\_imports=True} only when
+executing fully untrusted code where even importing is unacceptable.
+
+\subsection{Tooling \& CI}
+
+\marginnote{\color{added} New in v2.2}
+
+\begin{center}
+\begin{tabular}{@{} >{\sffamily\bfseries}l p{9cm} @{}}
+  \toprule
+  File & Purpose \\
+  \midrule
+  \texttt{tools/lint\_agent.py}   & CLI linter over \texttt{audit\_code()};
+                                    exit 0/1/2; \texttt{--json} for CI. \\
+  \texttt{tools/policy\_loader.py} & Load \texttt{GuardianPolicy} from
+                                    \texttt{policy.json}; safe defaults on error. \\
+  \texttt{policy.json}            & Declarative policy with \texttt{\_comment}
+                                    keys explaining every decision. \\
+  \texttt{tests/test\_agent.py}   & 21 unit tests: AST audit, sandbox utils,
+                                    atomic write, TokenBudget. \\
+  \texttt{.github/workflows/ci.yml} & Three jobs: AST Audit → Unit Tests
+                                    → Bundle Integrity (sequential). \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+%% ============================================================
+\section{Known Limitations \& Roadmap}
+
+\begin{description}[style=nextline, leftmargin=0pt]
+  \item[seccomp syscall allowlist is conservative]
+    The allowlist may block legitimate syscalls on uncommon platforms.
+    Extend the list in \texttt{\_make\_preexec()} as needed.
+
+  \item[\texttt{RLIMIT\_NPROC} may fail in containers]
+    Some containers lack user namespaces required for this limit.
+    The failure is silently ignored; timeout (Layer 1) remains active.
+
+  \item[\texttt{allowed\_paths} not enforced at OS level]
+    Declared in policy, enforced by symlink checks — not by chroot/seccomp
+    path filter.
+    \textit{Stage 3: seccomp path whitelist or chroot integration.}
+
+  \item[Reactive token management]
+    \textit{Stage 4: predictive token budgeting.}
+
+  \item[MDA integration not yet implemented]
+    Pre-commit hooks, GPG bundle signing, CI audit log archiving.
+    \textit{Stage 3 roadmap.}
+\end{description}
+
+%% ============================================================
+\section{Quick Start}
+
+\begin{lstlisting}[language=bash, caption={Installation and first run}]
+git clone https://github.com/iVANIUS1/chaos-agent
+cd chaos-agent
+pip install httpx
+export ANTHROPIC_API_KEY=sk-ant-...
+python chaos_agent_v2_1.py
+\end{lstlisting}
+
+%% ============================================================
+\section{License}
+
+MIT — free to use, modify, and build upon. Attribution appreciated.
+
+\vspace{8mm}
+{\color{rule}\rule{\linewidth}{0.4pt}}
+\vspace{4pt}
+
+\noindent{\sffamily\small\color{note}
+  Ivan Putna · Architect of Chaos ·
+  \href{https://github.com/iVANIUS1}{GitHub} ·
+  \href{https://www.linkedin.com/in/ivan-putna-3313a3381}{LinkedIn}
+}
+
+\end{document}

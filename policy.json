@@ -1,0 +1,14 @@
+{
+  "_comment": "Chaos Agent GuardianPolicy — one source of truth. See docs for rationale.",
+  "allowed_commands":     ["ls", "cat", "git", "echo", "python", "python3"],
+  "allowed_paths":        ["/workspace", "/tmp"],
+  "max_file_size_mb":     10,
+  "no_shell":             true,
+  "forbid_risky_imports": false,
+  "_forbid_risky_imports_note": "OFF by default: we block dangerous CALLS, not imports. Enable only for fully untrusted code execution contexts.",
+  "sandbox_timeout":      10,
+  "sandbox_cpu_limit":    5,
+  "sandbox_nproc_limit":  32,
+  "use_seccomp":          true,
+  "_use_seccomp_note":    "Silently skipped if seccomp is unavailable (container, macOS). Layer 1 (subprocess) remains active."
+}
